@@ -19,6 +19,13 @@ public class Results {
     @SerializedName("picture")
     @Expose
     private UserPhoto picture;
+    @SerializedName("phone")
+    @Expose
+    private String phone;
+
+    public String getPhone() {
+        return phone;
+    }
 
     public String getGender() {
         return gender;

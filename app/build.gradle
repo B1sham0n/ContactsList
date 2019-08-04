@@ -42,4 +42,7 @@ dependencies {
     // Rx-Retrofit Call Adapter
     def rxcalladapter_version = '2.5.0'
     implementation "com.squareup.retrofit2:adapter-rxjava2:$rxcalladapter_version"
+
+    //noinspection GradleCompatible
+    implementation 'com.android.support:recyclerview-v7:28.0.0'
 }
