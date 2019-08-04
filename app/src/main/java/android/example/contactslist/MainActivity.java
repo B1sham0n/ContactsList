@@ -2,12 +2,11 @@ package android.example.contactslist;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.Manifest;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.example.contactslist.adapters.ContactAdapter;
@@ -17,12 +16,17 @@ import android.example.contactslist.dagger.Component;
 import android.example.contactslist.dagger.DBModule;
 import android.example.contactslist.dagger.DaggerComponent;
 import android.example.contactslist.dagger.RetrofitModule;
+import android.example.contactslist.db_helpers.DBHelper;
 import android.example.contactslist.entities.Contact;
+import android.example.contactslist.fragments.FavoriteFragment;
+import android.example.contactslist.fragments.ListFragment;
 import android.example.contactslist.retrofit.InfoUser;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.view.MenuItem;
 import android.widget.Toast;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 
@@ -47,11 +51,16 @@ public class MainActivity extends AppCompatActivity {
     @Inject
     DBHelper dbHelper;
 
+    //TODO: создать ДБХелперФейфорит
+    //TODO: почистить код
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main2);
+        setContentView(R.layout.activity_main3);
 
+        BottomNavigationView navView = findViewById(R.id.nav_view);
+        navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         Component component = DaggerComponent.builder()
                 .retrofitModule(new RetrofitModule(10))
@@ -59,6 +68,9 @@ public class MainActivity extends AppCompatActivity {
                 .build();
         component.inject(this);
 
+        loadFragment(new ListFragment());
+
+        navView.setSelectedItemId(R.id.navigation_list);
         //readDB();
         //dbHelper.deleteDB(db);
         //findUsers();
@@ -79,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         */
-
+        /*
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if(checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED){
                contactList = getAll(this);
@@ -88,9 +100,20 @@ public class MainActivity extends AppCompatActivity {
                 requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, 100);
             }
         }
-        setRecyclerView();
+        setRecyclerView();*/
     }
 
+    private boolean loadFragment(Fragment fragment) {
+        //switching fragment
+        if (fragment != null) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, fragment)
+                    .commit();
+            return true;
+        }
+        return false;
+    }
 
     private void setRecyclerView(){
         recyclerView = findViewById(R.id.recView);
@@ -243,4 +266,23 @@ public class MainActivity extends AppCompatActivity {
         parent.addView(child);
 */
     }
+    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
+            = new BottomNavigationView.OnNavigationItemSelectedListener() {
+
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.navigation_favorites:
+                    loadFragment(new FavoriteFragment());
+                    System.out.println("избранное");
+                    return true;
+                case R.id.navigation_list:
+                    loadFragment(new ListFragment());
+                    System.out.println("фулл");
+                    return true;
+            }
+            return false;
+        }
+    };
+
 }

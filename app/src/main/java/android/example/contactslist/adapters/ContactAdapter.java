@@ -10,6 +10,7 @@ import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -19,6 +20,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactViewHolder>{
+
+    private String EMPTY_TAG = "empty";
+    private String FAVORITE_TAG = "favorite";
 
     private Integer numberItems;
     private ArrayList<Contact> contactList;
@@ -68,6 +72,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
         TextView name;
         TextView phone;
         ImageView photo;
+        Button btn;
 
         private Integer id;
 
@@ -76,18 +81,36 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
             name = itemView.findViewById(R.id.listName);
             phone = itemView.findViewById(R.id.listPhone);
             photo = itemView.findViewById(R.id.listPhoto);
+            btn = itemView.findViewById(R.id.listBtnFavorite);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     //Intent intent = null;// = new Intent(itemView.getContext(), ContactActivity.class);
-                    Intent intent = getIntent(new Intent());
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        if(btn.getTag() == EMPTY_TAG || btn.getTag() == null){
+                            btn.setBackground(itemView.getContext().getDrawable(R.drawable.ic_favorite_full));
+                            btn.setTag(FAVORITE_TAG);
+                            //TODO: здесь добавлять в базу данных фейворит
+                        }
+                        else {
+                            btn.setBackground(itemView.getContext().getDrawable(R.drawable.ic_favorite_empty));
+                            btn.setTag(EMPTY_TAG);
+                        }
+                    }
+                }
+            });
+            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    Intent intent = getIntent();
                     itemView.getContext().startActivity(intent);
+                    return true;
                 }
             });
         }
 
-        private Intent getIntent(Intent intent) {
-            intent = new Intent(itemView.getContext(), ContactActivity.class);
+        private Intent getIntent() {
+            Intent intent = new Intent(itemView.getContext(), ContactActivity.class);
             intent.putExtra("id", getId() + 1);//в БД индексация с 1
             System.out.println(getId() + " = id");
             return intent;
@@ -118,14 +141,14 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
                     }
                 }
 
-            }catch (Exception e){
+            } catch (Exception e){
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     photo.setImageDrawable(itemView.getContext().getDrawable(R.drawable.default_photo_contact));
                 }
             }
 
 
-            }
+        }
 
     }
 }

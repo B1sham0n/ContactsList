@@ -2,7 +2,7 @@ package android.example.contactslist.dagger;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
-import android.example.contactslist.DBHelper;
+import android.example.contactslist.db_helpers.DBHelper;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;

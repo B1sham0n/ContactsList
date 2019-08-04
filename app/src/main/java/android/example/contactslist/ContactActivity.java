@@ -7,12 +7,10 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.example.contactslist.dagger.Component;
 import android.example.contactslist.dagger.ComponentDB;
 import android.example.contactslist.dagger.DBModule;
-import android.example.contactslist.dagger.DaggerComponent;
 import android.example.contactslist.dagger.DaggerComponentDB;
-import android.example.contactslist.dagger.RetrofitModule;
+import android.example.contactslist.db_helpers.DBHelper;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,8 +18,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.squareup.picasso.Picasso;
 
 import javax.inject.Inject;
 

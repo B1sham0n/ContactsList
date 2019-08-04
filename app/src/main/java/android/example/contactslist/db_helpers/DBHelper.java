@@ -1,4 +1,4 @@
-package android.example.contactslist;
+package android.example.contactslist.db_helpers;
 
 import android.content.ContentValues;
 import android.content.Context;

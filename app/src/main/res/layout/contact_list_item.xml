@@ -15,9 +15,10 @@
             tools:src="@drawable/default_photo_contact"
             />
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="5dp"
+            android:layout_weight="1"
             android:orientation="vertical">
             <TextView
                 android:id="@+id/listName"
@@ -33,6 +34,13 @@
                 tools:text="11-22-33"
                 android:textSize="20sp"/>
         </LinearLayout>
+        <Button
+            android:id="@+id/listBtnFavorite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="10dp"
+            android:minWidth="10dp"
+            android:background="@drawable/ic_favorite_empty"/>
     </LinearLayout>
     <View
         android:layout_width="match_parent"
