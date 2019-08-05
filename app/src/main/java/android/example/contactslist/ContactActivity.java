@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.example.contactslist.dagger.ComponentDB;
 import android.example.contactslist.dagger.DBModule;
+
 import android.example.contactslist.dagger.DaggerComponentDB;
 import android.example.contactslist.db_helpers.DBHelper;
 import android.net.Uri;
@@ -20,12 +21,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import static android.Manifest.permission.CALL_PHONE;
 
 public class ContactActivity extends AppCompatActivity {
 
     @Inject
+    @Named("peoples")
     SQLiteDatabase db;
 
     @Inject
@@ -35,6 +38,7 @@ public class ContactActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contact);
+
 
         ComponentDB component = DaggerComponentDB.builder()
                 .dBModule(new DBModule(getApplicationContext(), DBHelper.USER_TABLE_NAME, DBHelper.USER_DB_NAME))
@@ -116,3 +120,4 @@ public class ContactActivity extends AppCompatActivity {
         }
     };
 }
+

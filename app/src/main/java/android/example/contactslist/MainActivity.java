@@ -31,6 +31,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import java.util.ArrayList;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -46,12 +47,13 @@ public class MainActivity extends AppCompatActivity {
     Call<InfoUser> infoUser;
 
     @Inject
+    @Named("peoples")
     SQLiteDatabase db;
 
     @Inject
     DBHelper dbHelper;
 
-    //TODO: создать ДБХелперФейфорит
+    //TODO: возможно, не нужно добавлять номера < N символов (мусорные номера)
     //TODO: почистить код
 
     @Override
@@ -71,6 +73,8 @@ public class MainActivity extends AppCompatActivity {
         loadFragment(new ListFragment());
 
         navView.setSelectedItemId(R.id.navigation_list);
+
+
         //readDB();
         //dbHelper.deleteDB(db);
         //findUsers();
@@ -120,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setHasFixedSize(true);//заранее знаем размер списка
-        contactAdapter = new ContactAdapter(contactList.size(), contactList);//get count contacts
+        //contactAdapter = new ContactAdapter(contactList.size(), contactList);//get count contacts
         //contactAdapter.setContactsList(contactList);
         recyclerView.setAdapter(contactAdapter);
     }

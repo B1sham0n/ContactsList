@@ -11,6 +11,7 @@ import android.example.contactslist.adapters.ContactAdapter;
 import android.example.contactslist.dagger.ComponentDB;
 import android.example.contactslist.dagger.DBModule;
 import android.example.contactslist.dagger.DaggerComponentDB;
+import android.example.contactslist.db_helpers.DBHelperFavorite;
 import android.example.contactslist.entities.Contact;
 import android.os.Build;
 import android.os.Bundle;
@@ -31,20 +32,23 @@ import android.example.contactslist.R;
 import java.util.ArrayList;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 public class ListFragment extends Fragment {
 
     @Inject
+    @Named("peoples")
     SQLiteDatabase db;
 
     @Inject
     DBHelper dbHelper;
 
+
     @Inject
     public ListFragment() {
         // Required empty public constructor
     }
-
+    //TODO: в бд нужно сохранять только когда обновляю список, удалить бд
     private RecyclerView recyclerView;
     private ContactAdapter contactAdapter;
     private ArrayList<Contact> contactList;
@@ -55,12 +59,12 @@ public class ListFragment extends Fragment {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_list_contacts, container, false);
     }
-        private void setRecyclerView(){
+     private void setRecyclerView(){
         recyclerView = getView().findViewById(R.id.recView);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setHasFixedSize(true);//заранее знаем размер списка
-        contactAdapter = new ContactAdapter(contactList.size(), contactList);//get count contacts
+        contactAdapter = new ContactAdapter(contactList.size(), contactList, getActivity().getApplicationContext());//get count contacts
         //contactAdapter.setContactsList(contactList);
         recyclerView.setAdapter(contactAdapter);
 
@@ -77,10 +81,15 @@ public class ListFragment extends Fragment {
         component.inject(this);
         Cursor c = db.query(DBHelper.USER_TABLE_NAME, null, null, null,
                 null, null, null);
+        //dbHelper.deleteDB(db);
+        System.out.println("cursor = " + c.getCount());
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if(getActivity().checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED){
-                contactList = getAll(getActivity());
+                if(c.getCount() == 0)
+                    contactList = getAll(getActivity(), true);
+                else
+                    contactList = getAll(getActivity(), false);
             }
             else{
                 requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, 100);
@@ -93,10 +102,16 @@ public class ListFragment extends Fragment {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        contactList = getAll(getActivity());
+
+        Cursor c = db.query(DBHelper.USER_TABLE_NAME, null, null, null,
+                null, null, null);
+        if(c.getCount() == 0)
+            contactList = getAll(getActivity(), true);
+        else
+            contactList = getAll(getActivity(), false);
     }
 
-    public ArrayList<Contact> getAll(Context context) {
+    public ArrayList<Contact> getAll(Context context, Boolean writeToDB) {
         ArrayList<Contact> contacts = new ArrayList<>();
         Cursor phones = getActivity().getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
 
@@ -109,7 +124,8 @@ public class ListFragment extends Fragment {
                 String photo = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_URI));
                 contacts.add(new Contact(name, phoneNumber, id, photo));
 
-                dbHelper.insertToDB(db, name, photo, phoneNumber);
+                if(writeToDB)
+                    dbHelper.insertToDB(db, name, photo, phoneNumber);
             }
         }
         else
