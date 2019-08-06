@@ -16,21 +16,17 @@ import dagger.Provides;
 public class DBModule {
 
     private Context context;
-    private String tableName;
-    private String dbName;
 
     @Inject
-    public DBModule(Context context, String tableName, String dbName) {
+    public DBModule(Context context) {
         this.context = context;
-        this.tableName = tableName;
-        this.dbName = dbName;
     }
 
     @Provides
     @Singleton
     DBHelper provideDBHelper()
     {
-        return new DBHelper(this.context, this.dbName, this.tableName);
+        return new DBHelper(this.context);
     }
 
     @Provides
@@ -43,7 +39,7 @@ public class DBModule {
 
     @Provides
     @Singleton
-    DBHelperFavorite provideDBHelperFavorite(){ return new DBHelperFavorite(this.context, this.dbName, this.tableName); }
+    DBHelperFavorite provideDBHelperFavorite(){ return new DBHelperFavorite(this.context); }
 
     @Provides
     @Singleton

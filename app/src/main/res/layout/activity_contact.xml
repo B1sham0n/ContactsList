@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ContactActivity">
+    tools:context=".activities.ContactActivity">
 
     <FrameLayout
         android:id="@+id/frameLayout"
@@ -68,6 +68,7 @@
                 android:minWidth="10dp"
                 android:minHeight="10dp"
                 android:layout_weight="1"
+                android:layout_marginLeft="15dp"
                 android:background="@drawable/ic_message"
                 android:backgroundTint="@color/colorPrimaryDark"/>
         </LinearLayout>

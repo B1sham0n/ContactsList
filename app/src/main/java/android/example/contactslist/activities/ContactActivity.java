@@ -1,4 +1,4 @@
-package android.example.contactslist;
+package android.example.contactslist.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -7,11 +7,13 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.example.contactslist.R;
 import android.example.contactslist.dagger.ComponentDB;
 import android.example.contactslist.dagger.DBModule;
 
 import android.example.contactslist.dagger.DaggerComponentDB;
 import android.example.contactslist.db_helpers.DBHelper;
+import android.example.contactslist.db_helpers.DBHelperFavorite;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -32,7 +34,14 @@ public class ContactActivity extends AppCompatActivity {
     SQLiteDatabase db;
 
     @Inject
+    @Named("favorite")
+    SQLiteDatabase dbFav;
+
+    @Inject
     DBHelper dbHelper;
+
+    @Inject
+    DBHelperFavorite dbHelperFavorite;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,9 +50,10 @@ public class ContactActivity extends AppCompatActivity {
 
 
         ComponentDB component = DaggerComponentDB.builder()
-                .dBModule(new DBModule(getApplicationContext(), DBHelper.USER_TABLE_NAME, DBHelper.USER_DB_NAME))
+                .dBModule(new DBModule(getApplicationContext()))
                 .build();
         component.inject(this);
+
 
         TextView tvPhone = findViewById(R.id.tvPhoneNumber);
         TextView tvUsername = findViewById(R.id.tvUsername);
@@ -57,9 +67,18 @@ public class ContactActivity extends AppCompatActivity {
         Integer id = getIntent().getIntExtra("id", 1);
         Integer i = 1;
 
-        Cursor c = db.query(DBHelper.USER_TABLE_NAME, null, null, null,
+        Cursor c;
+        String tabName = getIntent().getStringExtra("tab");
+        System.out.println(tabName);
+
+
+        if(tabName.equals("peoples"))
+            c = db.query(DBHelper.USER_TABLE_NAME, null, null, null,
                 null, null, null);
-        System.out.println(c.getCount());
+        else
+            c = dbFav.query(DBHelperFavorite.USER_TABLE_NAME, null, null, null,
+                null, null, null);
+
         String name = "Name", username = "username", email = "email", photo = "", phone = "phone";
         if (c.moveToFirst()) {
             do {

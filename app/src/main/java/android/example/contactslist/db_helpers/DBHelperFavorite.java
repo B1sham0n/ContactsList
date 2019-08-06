@@ -11,8 +11,7 @@ import javax.inject.Singleton;
 
 @Singleton
 public class DBHelperFavorite extends SQLiteOpenHelper {
-    String nameDB;// = "peoplesDB";
-    String nameTable;// = "peoplesTable"
+
     public static final String USER_TABLE_NAME = "favoritesTable";
     public static final String USER_DB_NAME = "favoritesDB";
     public static final String USER_COLUMN_USER_ID = "id";
@@ -23,17 +22,15 @@ public class DBHelperFavorite extends SQLiteOpenHelper {
     public static final String USER_COLUMN_USER_PHONE = "telephone";
 
     @Inject
-    public DBHelperFavorite(Context context, String dbName, String tbName) {
+    public DBHelperFavorite(Context context) {
         //super(context, nameDB, null, 1);
-        super(context, dbName, null, 1);
-        this.nameDB = dbName;
-        this.nameTable = tbName;
+        super(context, USER_DB_NAME, null, 1);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
             // создаем таблицу с полями
-        db.execSQL("create table " + nameTable + " ("
+        db.execSQL("create table " + USER_TABLE_NAME + " ("
                 + USER_COLUMN_USER_ID + " integer primary key autoincrement,"
                 + USER_COLUMN_USER_NAME +" text,"
                 + USER_COLUMN_USER_PHOTO + " text,"

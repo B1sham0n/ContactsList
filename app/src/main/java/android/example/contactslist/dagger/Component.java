@@ -1,7 +1,7 @@
 package android.example.contactslist.dagger;
 
-import android.example.contactslist.ContactActivity;
-import android.example.contactslist.MainActivity;
+import android.example.contactslist.activities.ContactActivity;
+import android.example.contactslist.activities.MainActivity;
 import javax.inject.Singleton;
 
 @Singleton

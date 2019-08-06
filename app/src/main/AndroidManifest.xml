@@ -18,8 +18,8 @@
         <activity
             android:name=".MainActivity3"
             android:label="@string/title_activity_main3"></activity>
-        <activity android:name=".ContactActivity" />
-        <activity android:name=".MainActivity">
+        <activity android:name=".activities.ContactActivity" />
+        <activity android:name=".activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

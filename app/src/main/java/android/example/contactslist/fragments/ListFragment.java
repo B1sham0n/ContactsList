@@ -11,7 +11,6 @@ import android.example.contactslist.adapters.ContactAdapter;
 import android.example.contactslist.dagger.ComponentDB;
 import android.example.contactslist.dagger.DBModule;
 import android.example.contactslist.dagger.DaggerComponentDB;
-import android.example.contactslist.db_helpers.DBHelperFavorite;
 import android.example.contactslist.entities.Contact;
 import android.os.Build;
 import android.os.Bundle;
@@ -64,7 +63,7 @@ public class ListFragment extends Fragment {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setHasFixedSize(true);//заранее знаем размер списка
-        contactAdapter = new ContactAdapter(contactList.size(), contactList, getActivity().getApplicationContext());//get count contacts
+        contactAdapter = new ContactAdapter(contactList.size(), contactList, getActivity().getApplicationContext(), "peoples");//get count contacts
         //contactAdapter.setContactsList(contactList);
         recyclerView.setAdapter(contactAdapter);
 
@@ -76,7 +75,7 @@ public class ListFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         ComponentDB component = DaggerComponentDB.builder()
-                .dBModule(new DBModule(getActivity().getApplicationContext(), DBHelper.USER_TABLE_NAME, DBHelper.USER_DB_NAME))
+                .dBModule(new DBModule(getActivity().getApplicationContext()))
                 .build();
         component.inject(this);
         Cursor c = db.query(DBHelper.USER_TABLE_NAME, null, null, null,

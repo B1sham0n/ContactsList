@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.example.contactslist.ContactActivity;
+import android.example.contactslist.activities.ContactActivity;
 import android.example.contactslist.dagger.ComponentDB;
 import android.example.contactslist.dagger.DBModule;
 import android.example.contactslist.dagger.DaggerComponentDB;
@@ -38,11 +38,13 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
 
     private Integer numberItems;
     private ArrayList<Contact> contactList;
+    private String nameTab;
 
-    public ContactAdapter(Integer numberItems, ArrayList<Contact> contacts, Context context) {
+    public ContactAdapter(Integer numberItems, ArrayList<Contact> contacts, Context context, String nameTab) {
         this.numberItems = numberItems;
         contactList = new ArrayList<>();
         this.contactList.addAll(contacts);
+        this.nameTab = nameTab;
     }
     public void setContactsList(ArrayList<Contact> newList){
         this.contactList.addAll(newList);
@@ -106,7 +108,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
             super(itemView);
 
             ComponentDB component = DaggerComponentDB.builder()
-                    .dBModule(new DBModule(itemView.getContext(), DBHelperFavorite.USER_TABLE_NAME, DBHelperFavorite.USER_DB_NAME))
+                    .dBModule(new DBModule(itemView.getContext()))
                     .build();
             component.inject(this);
 
@@ -172,6 +174,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
         private Intent getIntent() {
             Intent intent = new Intent(itemView.getContext(), ContactActivity.class);
             intent.putExtra("id", getId() + 1);//в БД индексация с 1
+            intent.putExtra("tab", nameTab);
             System.out.println(getId() + " = id");
             return intent;
         }

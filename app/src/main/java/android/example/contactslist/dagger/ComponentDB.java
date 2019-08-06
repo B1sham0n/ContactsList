@@ -1,6 +1,6 @@
 package android.example.contactslist.dagger;
 
-import android.example.contactslist.ContactActivity;
+import android.example.contactslist.activities.ContactActivity;
 import android.example.contactslist.adapters.ContactAdapter;
 import android.example.contactslist.fragments.FavoriteFragment;
 import android.example.contactslist.fragments.ListFragment;

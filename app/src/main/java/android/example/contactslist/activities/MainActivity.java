@@ -1,4 +1,4 @@
-package android.example.contactslist;
+package android.example.contactslist.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.example.contactslist.R;
 import android.example.contactslist.adapters.ContactAdapter;
 
 
@@ -54,6 +55,10 @@ public class MainActivity extends AppCompatActivity {
     DBHelper dbHelper;
 
     //TODO: возможно, не нужно добавлять номера < N символов (мусорные номера)
+    //TODO: отправлять СМС
+    // SmsManager smsManager = SmsManager.getDefault();
+    ////Send the SMS//
+    //smsManager.sendTextMessage(phoneNum, null, sms, null, null);
     //TODO: почистить код
 
     @Override
@@ -66,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
 
         Component component = DaggerComponent.builder()
                 .retrofitModule(new RetrofitModule(10))
-                .dBModule(new DBModule(this, DBHelper.USER_TABLE_NAME, DBHelper.USER_DB_NAME))
+                .dBModule(new DBModule(this))
                 .build();
         component.inject(this);
 
