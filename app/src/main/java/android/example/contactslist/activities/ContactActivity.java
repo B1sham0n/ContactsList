@@ -1,8 +1,10 @@
 package android.example.contactslist.activities;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -17,15 +19,21 @@ import android.example.contactslist.db_helpers.DBHelperFavorite;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.telephony.SmsManager;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
 import static android.Manifest.permission.CALL_PHONE;
+import static android.Manifest.permission.SEND_SMS;
 
 public class ContactActivity extends AppCompatActivity {
 
@@ -43,6 +51,7 @@ public class ContactActivity extends AppCompatActivity {
     @Inject
     DBHelperFavorite dbHelperFavorite;
 
+    private String message;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,6 +72,7 @@ public class ContactActivity extends AppCompatActivity {
         ImageView ivPhoto = findViewById(R.id.ivContactPhoto);
 
         Button btnCall = findViewById(R.id.btnCall);
+        Button btnMessage = findViewById(R.id.btnMessage);
 
         Integer id = getIntent().getIntExtra("id", 1);
         Integer i = 1;
@@ -120,9 +130,20 @@ public class ContactActivity extends AppCompatActivity {
         tvPhone.setTag(phone);
         btnCall.setOnClickListener(callListener);
         tvPhone.setOnClickListener(callListener);
+        btnMessage.setOnClickListener(messageListener);
+        btnMessage.setTag(phone);
         System.out.println("its okey");
     }
-
+    private void sendMessage(String sms, String phoneNum){
+        if (ContextCompat.checkSelfPermission(getApplicationContext(), SEND_SMS) == PackageManager.PERMISSION_GRANTED) {
+            SmsManager smsManager = SmsManager.getDefault();
+            smsManager.sendTextMessage(phoneNum, null, sms, null, null);
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(new String[]{SEND_SMS}, 1);
+            }
+        }
+    }
     View.OnClickListener callListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -136,6 +157,37 @@ public class ContactActivity extends AppCompatActivity {
                     requestPermissions(new String[]{CALL_PHONE}, 1);
                 }
             }
+        }
+    };
+    View.OnClickListener messageListener = new View.OnClickListener() {
+        @Override
+        public void onClick(final View view) {
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(ContactActivity.this);
+            builder.setTitle("Title");
+
+            View viewInflated = LayoutInflater.from(getApplicationContext()).inflate(R.layout.dialog, null, false);
+
+            final EditText input = (EditText) viewInflated.findViewById(R.id.etMessage);
+
+            builder.setView(viewInflated);
+
+            builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                    message = input.getText().toString();
+                    sendMessage(message, view.getTag().toString());
+                }
+            });
+            builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+
+            builder.show();
         }
     };
 }

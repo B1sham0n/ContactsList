@@ -74,19 +74,26 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
     @Override
     public void onBindViewHolder(@NonNull ContactViewHolder holder, int position) {
         holder.bind(position);
+        System.out.println(getItemCount() + " count");
     }
 
     @Override
     public int getItemCount() {
-        return numberItems;
+        return contactList.size();
     }
 
+    public void filteredList(ArrayList<Contact> filteredList){
+        contactList.clear();
+        contactList.addAll(filteredList);
+        System.out.println(contactList.size() + " size");
+        notifyDataSetChanged();
+    }
     public class ContactViewHolder extends RecyclerView.ViewHolder {
 
         TextView name;
         TextView phone;
         ImageView photo;
-        Button btn;
+        Button btnStar;
 
         @Inject
         DBHelperFavorite dbHelperFavorite;
@@ -115,23 +122,23 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
             name = itemView.findViewById(R.id.listName);
             phone = itemView.findViewById(R.id.listPhone);
             photo = itemView.findViewById(R.id.listPhoto);
-            btn = itemView.findViewById(R.id.listBtnFavorite);
+            btnStar = itemView.findViewById(R.id.listBtnFavorite);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     //Intent intent = null;// = new Intent(itemView.getContext(), ContactActivity.class);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        if(btn.getTag() == EMPTY_TAG){
-                            btn.setBackground(itemView.getContext().getDrawable(R.drawable.ic_favorite_full));
-                            btn.setTag(FAVORITE_TAG);
+                        if(btnStar.getTag() == EMPTY_TAG){
+                            btnStar.setBackground(itemView.getContext().getDrawable(R.drawable.ic_favorite_full));
+                            btnStar.setTag(FAVORITE_TAG);
 
-                            setNewFavorite(btn.getId());
+                            setNewFavorite(btnStar.getId());
                         }
                         else {
-                            btn.setBackground(itemView.getContext().getDrawable(R.drawable.ic_favorite_empty));
-                            btn.setTag(EMPTY_TAG);
+                            btnStar.setBackground(itemView.getContext().getDrawable(R.drawable.ic_favorite_empty));
+                            btnStar.setTag(EMPTY_TAG);
 
-                            dbHelperFavorite.removeFromDB(dbFav, contactList.get(btn.getId()).getNameContact());
+                            dbHelperFavorite.removeFromDB(dbFav, contactList.get(btnStar.getId()).getNameContact());
                         }
                     }
                 }
@@ -188,16 +195,16 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
             putId(id);
             name.setText(contactList.get(id).getNameContact());
             phone.setText(contactList.get(id).getPhoneContact());
-            btn.setId(id);//это число потом берем из списка как id контакта при добавлении в избр
+            btnStar.setId(id);//это число потом берем из списка как id контакта при добавлении в избр
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 if (compareWithFavorite(id)) {
-                    btn.setBackground(itemView.getContext().getDrawable(R.drawable.ic_favorite_full));
-                    btn.setTag(FAVORITE_TAG);
+                    btnStar.setBackground(itemView.getContext().getDrawable(R.drawable.ic_favorite_full));
+                    btnStar.setTag(FAVORITE_TAG);
                 }
                 else{
-                    btn.setBackground(itemView.getContext().getDrawable(R.drawable.ic_favorite_empty));
-                    btn.setTag(EMPTY_TAG);
+                    btnStar.setBackground(itemView.getContext().getDrawable(R.drawable.ic_favorite_empty));
+                    btnStar.setTag(EMPTY_TAG);
                 }
             }
 

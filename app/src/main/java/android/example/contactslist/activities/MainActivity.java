@@ -55,10 +55,7 @@ public class MainActivity extends AppCompatActivity {
     DBHelper dbHelper;
 
     //TODO: возможно, не нужно добавлять номера < N символов (мусорные номера)
-    //TODO: отправлять СМС
-    // SmsManager smsManager = SmsManager.getDefault();
-    ////Send the SMS//
-    //smsManager.sendTextMessage(phoneNum, null, sms, null, null);
+
     //TODO: почистить код
 
     @Override

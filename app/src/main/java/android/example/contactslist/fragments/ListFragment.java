@@ -2,10 +2,12 @@ package android.example.contactslist.fragments;
 
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.example.contactslist.activities.MainActivity;
 import android.example.contactslist.db_helpers.DBHelper;
 import android.example.contactslist.adapters.ContactAdapter;
 import android.example.contactslist.dagger.ComponentDB;
@@ -20,13 +22,20 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.provider.ContactsContract;
+import android.text.Annotation;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import android.example.contactslist.R;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.EditText;
 
 import java.util.ArrayList;
 
@@ -42,6 +51,7 @@ public class ListFragment extends Fragment {
     @Inject
     DBHelper dbHelper;
 
+    private SwipeRefreshLayout srlListContacts;
 
     @Inject
     public ListFragment() {
@@ -51,7 +61,7 @@ public class ListFragment extends Fragment {
     private RecyclerView recyclerView;
     private ContactAdapter contactAdapter;
     private ArrayList<Contact> contactList;
-
+    private EditText searchContact;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -67,7 +77,37 @@ public class ListFragment extends Fragment {
         //contactAdapter.setContactsList(contactList);
         recyclerView.setAdapter(contactAdapter);
 
-
+         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+             @Override
+             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                 if(newState == 0){
+                     new java.util.Timer().schedule(
+                             new java.util.TimerTask() {
+                                 @Override
+                                 public void run() {
+                                     getActivity().runOnUiThread(new Runnable() {
+                                         public void run() {
+                                             searchContact.setVisibility(View.VISIBLE);
+                                         }
+                                     });
+                                 }
+                             }, 1000 );
+                 }
+                 else{
+                     new java.util.Timer().schedule(
+                         new java.util.TimerTask() {
+                             @Override
+                             public void run() {
+                                 getActivity().runOnUiThread(new Runnable() {
+                                     public void run() {
+                                         searchContact.setVisibility(View.GONE);
+                                     }
+                                 });
+                             }
+                         }, 1000 );
+                 }
+             }
+         });
     }
 
     @Override
@@ -96,6 +136,47 @@ public class ListFragment extends Fragment {
         }
         setRecyclerView();
 
+        srlListContacts = view.findViewById(R.id.srlListContacts);
+        srlListContacts.setRefreshing(false);
+        srlListContacts.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                contactAdapter.clearContactsList();
+                dbHelper.deleteDB(db);
+                contactList = getAll(getActivity(), true);
+                setRecyclerView();
+                srlListContacts.setRefreshing(false);
+            }
+        });
+
+        searchContact = view.findViewById(R.id.searchListContacts);
+        searchContact.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                filter(editable.toString());
+            }
+        });
+
+    }
+
+    private void filter(String text) {
+        ArrayList<Contact> filteredList = new ArrayList<>();
+        for(Contact contact : contactList){
+            if(contact.getNameContact().toLowerCase().contains(text.toLowerCase())){
+                filteredList.add(contact);
+            }
+        }
+        contactAdapter.filteredList(filteredList);
     }
 
     @Override
