@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.example.contactslist.activities.ContactActivity;
+import android.example.contactslist.constants.Constants;
 import android.example.contactslist.dagger.ComponentDB;
 import android.example.contactslist.dagger.DBModule;
 import android.example.contactslist.dagger.DaggerComponentDB;
@@ -14,10 +15,13 @@ import android.example.contactslist.entities.Contact;
 import android.example.contactslist.R;
 import android.net.Uri;
 import android.os.Build;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -39,6 +43,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
     private Integer numberItems;
     private ArrayList<Contact> contactList;
     private String nameTab;
+    private Context context;
 
     public ContactAdapter(Integer numberItems, ArrayList<Contact> contacts, Context context, String nameTab) {
         this.numberItems = numberItems;
@@ -54,27 +59,36 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
         this.contactList.clear();
         notifyDataSetChanged();
     }
+
+    @Override
+    public int getItemViewType(int position) {
+        if(position == 0 && !nameTab.equals(Constants.Names.getFavoriteDB()))
+            return 0;
+        else
+            return 1;
+    }
+
     @NonNull
     @Override
     public ContactViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        //return null;
-        Context context = parent.getContext();
-        //Integer layoutIdForListItem = R.layout.contact_list_item;
-
+        context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
-        View view = inflater.inflate(R.layout.contact_list_item, parent, false);
-
-        //тут переопределить поля?
-        //viewHolder.name.setText("name");
-        //viewHolder.phone.setText("11-22-33");
-
+        View view = null;
+        switch (viewType) {
+            case 0:
+                view = inflater.inflate(R.layout.search_item, parent, false);
+                break;
+            case 1:
+                view = inflater.inflate(R.layout.contact_list_item, parent, false);
+                break;
+        }
         return new ContactViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ContactViewHolder holder, int position) {
         holder.bind(position);
-        System.out.println(getItemCount() + " count");
+        //System.out.println(getItemCount() + " count");
     }
 
     @Override
@@ -94,6 +108,8 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
         TextView phone;
         ImageView photo;
         Button btnStar;
+        EditText search;
+        TextView tvCount;
 
         @Inject
         DBHelperFavorite dbHelperFavorite;
@@ -123,6 +139,9 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
             phone = itemView.findViewById(R.id.listPhone);
             photo = itemView.findViewById(R.id.listPhoto);
             btnStar = itemView.findViewById(R.id.listBtnFavorite);
+            search = itemView.findViewById(R.id.searchListContacts);
+            tvCount = itemView.findViewById(R.id.countOfContacts);
+
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -182,7 +201,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
             Intent intent = new Intent(itemView.getContext(), ContactActivity.class);
             intent.putExtra("id", getId() + 1);//в БД индексация с 1
             intent.putExtra("tab", nameTab);
-            System.out.println(getId() + " = id");
+            System.out.println(getId() + " = id; " + nameTab + " = nameTab");
             return intent;
         }
         public void putId(Integer i){
@@ -191,42 +210,71 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
         private Integer getId(){
             return id;
         }
+        private void filter(String text) {
+            ArrayList<Contact> filteredList = new ArrayList<>();
+            for(Contact contact : contactList){
+                if(contact.getNameContact().toLowerCase().contains(text.toLowerCase())){
+                    filteredList.add(contact);
+                }
+            }
+            filteredList(filteredList);
+        }
         void bind(Integer id) {
-            putId(id);
-            name.setText(contactList.get(id).getNameContact());
-            phone.setText(contactList.get(id).getPhoneContact());
-            btnStar.setId(id);//это число потом берем из списка как id контакта при добавлении в избр
+            switch (ContactAdapter.this.getItemViewType(id)) {
+                case 0:
+                    //searchContact = findViewById(R.id.searchListContacts);
+                    search.addTextChangedListener(new TextWatcher() {
+                        @Override
+                        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                if (compareWithFavorite(id)) {
-                    btnStar.setBackground(itemView.getContext().getDrawable(R.drawable.ic_favorite_full));
-                    btnStar.setTag(FAVORITE_TAG);
-                }
-                else{
-                    btnStar.setBackground(itemView.getContext().getDrawable(R.drawable.ic_favorite_empty));
-                    btnStar.setTag(EMPTY_TAG);
-                }
-            }
+                        }
 
-            String uri = contactList.get(id).getUriPhotoContact();
-            try {
-                if(!uri.contains("content://com.android.contacts/contacts/")) {
-                    Uri uri1 = Uri.parse(contactList.get(id).getUriPhotoContact());
-                    photo.setImageURI(uri1);
-                    System.out.println("uri = " + uri + " id = " + id);
-                }
-                else
-                {
+                        @Override
+                        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                        }
+
+                        @Override
+                        public void afterTextChanged(Editable editable) {
+                            filter(editable.toString());
+                        }
+                    });
+                    tvCount.setText(context.getResources().getString(R.string.count_of_contacts) + " " + getItemCount());
+                break;
+                case 1:
+                    putId(id);
+                    name.setText(contactList.get(id).getNameContact());
+                    phone.setText(contactList.get(id).getPhoneContact());
+                    btnStar.setId(id);//это число потом берем из списка как id контакта при добавлении в избр
+
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        photo.setImageDrawable(itemView.getContext().getDrawable(R.drawable.default_photo_contact));
+                        if (compareWithFavorite(id)) {
+                            btnStar.setBackground(itemView.getContext().getDrawable(R.drawable.ic_favorite_full));
+                            btnStar.setTag(FAVORITE_TAG);
+                        } else {
+                            btnStar.setBackground(itemView.getContext().getDrawable(R.drawable.ic_favorite_empty));
+                            btnStar.setTag(EMPTY_TAG);
+                        }
                     }
-                }
-            } catch (Exception e){
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    photo.setImageDrawable(itemView.getContext().getDrawable(R.drawable.default_photo_contact));
-                }
-            }
 
+                    String uri = contactList.get(id).getUriPhotoContact();
+                    try {
+                        if (!uri.contains("content://com.android.contacts/contacts/")) {
+                            Uri uri1 = Uri.parse(contactList.get(id).getUriPhotoContact());
+                            photo.setImageURI(uri1);
+                            System.out.println("uri = " + uri + " id = " + id);
+                        } else {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                photo.setImageDrawable(itemView.getContext().getDrawable(R.drawable.default_photo_contact));
+                            }
+                        }
+                    } catch (Exception e) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            photo.setImageDrawable(itemView.getContext().getDrawable(R.drawable.default_photo_contact));
+                        }
+                    }
+                break;
+            }
 
         }
 

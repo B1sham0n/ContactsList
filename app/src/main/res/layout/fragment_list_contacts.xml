@@ -5,15 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".fragments.ListFragment">
-    <EditText
-        android:id="@+id/searchListContacts"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:singleLine="true"
-        android:maxLines="1"
-        android:textColorHint="@color/colorPrimaryDark"
-        android:textColorLink="@color/colorPrimaryDark"
-        android:backgroundTint="@color/colorPrimaryDark"/>
+
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/srlListContacts"
         android:layout_width="match_parent"

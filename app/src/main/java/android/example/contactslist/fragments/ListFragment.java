@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.example.contactslist.activities.MainActivity;
+import android.example.contactslist.constants.Constants;
 import android.example.contactslist.db_helpers.DBHelper;
 import android.example.contactslist.adapters.ContactAdapter;
 import android.example.contactslist.dagger.ComponentDB;
@@ -25,16 +26,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.provider.ContactsContract;
-import android.text.Annotation;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import android.example.contactslist.R;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 
 import java.util.ArrayList;
@@ -73,41 +69,10 @@ public class ListFragment extends Fragment {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setHasFixedSize(true);//заранее знаем размер списка
-        contactAdapter = new ContactAdapter(contactList.size(), contactList, getActivity().getApplicationContext(), "peoples");//get count contacts
+        contactAdapter = new ContactAdapter(contactList.size(), contactList, getActivity().getApplicationContext(), Constants.Names.getContactsDB());//get count contacts
         //contactAdapter.setContactsList(contactList);
         recyclerView.setAdapter(contactAdapter);
 
-         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-             @Override
-             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                 if(newState == 0){
-                     new java.util.Timer().schedule(
-                             new java.util.TimerTask() {
-                                 @Override
-                                 public void run() {
-                                     getActivity().runOnUiThread(new Runnable() {
-                                         public void run() {
-                                             searchContact.setVisibility(View.VISIBLE);
-                                         }
-                                     });
-                                 }
-                             }, 1000 );
-                 }
-                 else{
-                     new java.util.Timer().schedule(
-                         new java.util.TimerTask() {
-                             @Override
-                             public void run() {
-                                 getActivity().runOnUiThread(new Runnable() {
-                                     public void run() {
-                                         searchContact.setVisibility(View.GONE);
-                                     }
-                                 });
-                             }
-                         }, 1000 );
-                 }
-             }
-         });
     }
 
     @Override
@@ -148,35 +113,6 @@ public class ListFragment extends Fragment {
                 srlListContacts.setRefreshing(false);
             }
         });
-
-        searchContact = view.findViewById(R.id.searchListContacts);
-        searchContact.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                filter(editable.toString());
-            }
-        });
-
-    }
-
-    private void filter(String text) {
-        ArrayList<Contact> filteredList = new ArrayList<>();
-        for(Contact contact : contactList){
-            if(contact.getNameContact().toLowerCase().contains(text.toLowerCase())){
-                filteredList.add(contact);
-            }
-        }
-        contactAdapter.filteredList(filteredList);
     }
 
     @Override

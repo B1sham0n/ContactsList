@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.example.contactslist.adapters.ContactAdapter;
+import android.example.contactslist.constants.Constants;
 import android.example.contactslist.dagger.ComponentDB;
 import android.example.contactslist.dagger.DBModule;
 import android.example.contactslist.dagger.DaggerComponentDB;
@@ -91,7 +92,7 @@ public class FavoriteFragment extends Fragment {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setHasFixedSize(true);//заранее знаем размер списка
-        contactAdapter = new ContactAdapter(contactList.size(), contactList, Objects.requireNonNull(getActivity()).getApplicationContext(), "favorite");//get count contacts
+        contactAdapter = new ContactAdapter(contactList.size(), contactList, Objects.requireNonNull(getActivity()).getApplicationContext(), Constants.Names.getFavoriteDB());//get count contacts
         //contactAdapter.setContactsList(contactList);
         recyclerView.setAdapter(contactAdapter);
     }

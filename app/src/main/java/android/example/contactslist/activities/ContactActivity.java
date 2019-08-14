@@ -10,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.example.contactslist.R;
+import android.example.contactslist.constants.Constants;
 import android.example.contactslist.dagger.ComponentDB;
 import android.example.contactslist.dagger.DBModule;
 
@@ -63,10 +64,7 @@ public class ContactActivity extends AppCompatActivity {
                 .build();
         component.inject(this);
 
-
         TextView tvPhone = findViewById(R.id.tvPhoneNumber);
-        TextView tvUsername = findViewById(R.id.tvUsername);
-        TextView tvEmail = findViewById(R.id.tvEmail);
         TextView tvName = findViewById(R.id.tvContactName);
 
         ImageView ivPhoto = findViewById(R.id.ivContactPhoto);
@@ -75,11 +73,10 @@ public class ContactActivity extends AppCompatActivity {
         Button btnMessage = findViewById(R.id.btnMessage);
 
         Integer id = getIntent().getIntExtra("id", 1);
-        Integer i = 1;
+        Integer i = 0;
 
         Cursor c;
         String tabName = getIntent().getStringExtra("tab");
-        System.out.println(tabName);
 
 
         if(tabName.equals("peoples"))
@@ -92,13 +89,14 @@ public class ContactActivity extends AppCompatActivity {
         String name = "Name", username = "username", email = "email", photo = "", phone = "phone";
         if (c.moveToFirst()) {
             do {
-                i = c.getInt(c.getColumnIndex(DBHelper.USER_COLUMN_USER_ID));
+                i++;
                 if(i.equals(id)) {
                     name = c.getString(c.getColumnIndex(DBHelper.USER_COLUMN_USER_NAME));
                     //username = c.getString(c.getColumnIndex(DBHelper.USER_COLUMN_USER_USERNAME));
                     //email = c.getString(c.getColumnIndex(DBHelper.USER_COLUMN_USER_EMAIL));
                     photo = c.getString(c.getColumnIndex(DBHelper.USER_COLUMN_USER_PHOTO));
                     phone = c.getString(c.getColumnIndex(DBHelper.USER_COLUMN_USER_PHONE));
+                    break;
                 }
                 //System.out.println("name: " + c.getString(c.getColumnIndex(DBHelper.USER_COLUMN_USER_NAME)));
             } while (c.moveToNext());
@@ -109,7 +107,7 @@ public class ContactActivity extends AppCompatActivity {
         //tvUsername.setText(username);
 
         try {
-            if(!photo.contains("content://com.android.contacts/contacts/")) {
+            if(!photo.contains(Constants.URI.getCommonPart())) {
                 Uri uri1 = Uri.parse(photo);
                 ivPhoto.setImageURI(uri1);
                 System.out.println("uri = " + photo + " id = " + id);
@@ -132,7 +130,6 @@ public class ContactActivity extends AppCompatActivity {
         tvPhone.setOnClickListener(callListener);
         btnMessage.setOnClickListener(messageListener);
         btnMessage.setTag(phone);
-        System.out.println("its okey");
     }
     private void sendMessage(String sms, String phoneNum){
         if (ContextCompat.checkSelfPermission(getApplicationContext(), SEND_SMS) == PackageManager.PERMISSION_GRANTED) {
@@ -164,7 +161,7 @@ public class ContactActivity extends AppCompatActivity {
         public void onClick(final View view) {
 
             AlertDialog.Builder builder = new AlertDialog.Builder(ContactActivity.this);
-            builder.setTitle("Title");
+            builder.setTitle("Write your message: ");
 
             View viewInflated = LayoutInflater.from(getApplicationContext()).inflate(R.layout.dialog, null, false);
 
